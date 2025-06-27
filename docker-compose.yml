@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # SQL Server con tus credenciales
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: Aram
+    environment:
+      SA_PASSWORD: "Juanchester26#"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'Juanchester26#' -Q 'SELECT 1' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Microservicio de Productos
+  producto-api:
+    build:
+      context: https://github.com/yafAram/Producto_Microservicio_Net.git
+    container_name: producto-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=Aram;Database=ShopingCar;User ID=sa;Password=Juanchester26#;TrustServerCertificate=True;"
+    ports:
+      - "5001:80"
+
+  # Microservicio de Cupones
+  coupon-api:
+    build:
+      context: https://github.com/yafAram/Coupon_Microservice_NET.git
+    container_name: coupon-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=Aram;Database=CouponDB;User ID=sa;Password=Juanchester26#;TrustServerCertificate=True;"
+    ports:
+      - "5002:80"
+
+  # Microservicio de Autenticación
+  auth-api:
+    build:
+      context: https://github.com/yafAram/Auth_Microservice_NET.git
+    container_name: auth-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=Aram;Database=AuthDB;User ID=sa;Password=Juanchester26#;TrustServerCertificate=True;"
+      ApiSettings__JwtOptions__Secret: "erghyDEGHHGGH=534643hg4gh43gtvr34y34u5t5t5gUYGYJUJHHOYUBGYG+77r=67474hhhhhhhdgg"
+      ApiSettings__JwtOptions__Issuer: "dsicode-auth-api"
+      ApiSettings__JwtOptions__Audience: "dsicode-client"
+    ports:
+      - "5000:80"
+
+  # Nginx como reverse proxy
+  nginx-proxy:
+    image: nginx:latest
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - producto-api
+      - coupon-api
+      - auth-api
+
+volumes:
+  sql_data:
