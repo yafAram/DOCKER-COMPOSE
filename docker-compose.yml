@@ -21,6 +21,7 @@ services:
   producto-api:
     build:
       context: https://github.com/yafAram/Producto_Microservicio_Net.git
+      dockerfile: Producto_Microservicio_Net\DockerFile
     environment:
       ConnectionStrings__DefaultConnection: "Server=Aram;Database=ShopingCar;User ID=sa;Password=Juanchester26#;TrustServerCertificate=True;"
       RUN_MIGRATIONS: "1"
@@ -31,6 +32,7 @@ services:
   coupon-api:
     build:
       context: https://github.com/yafAram/Coupon_Microservice_NET.git
+      dockerfile: Coupon_Microservice_NET\Uttt.Micro.Cupon\DockerFile
     environment:
       ConnectionStrings__DefaultConnection: "Server=Aram;Database=CouponDB;User ID=sa;Password=Juanchester26#;TrustServerCertificate=True;"
       RUN_MIGRATIONS: "1"
@@ -41,6 +43,7 @@ services:
   auth-api:
     build:
       context: https://github.com/yafAram/Auth_Microservice_NET.git
+      dockerfile: Auth_Microservice_NET\DockerFile
     environment:
       ConnectionStrings__DefaultConnection: "Server=Aram;Database=AuthDB;User ID=sa;Password=Juanchester26#;TrustServerCertificate=True;"
       ApiSettings__JwtOptions__Secret: "erghyDEGHHGGH=534643hg4gh43gtvr34y34u5t5t5gUYGYJUJHHOYUBGYG+77r=67474hhhhhhhdgg"
